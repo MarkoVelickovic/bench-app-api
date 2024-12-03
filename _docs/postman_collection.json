@@ -1,0 +1,392 @@
+{
+  "info": {
+    "name": "Bench App API",
+    "_postman_id": "your-postman-id",
+    "description": "Postman collection for the Bench App API endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"company@example.com\",\n  \"password\": \"SecurePassword123\",\n  \"userType\": \"company\",\n  \"displayName\": \"Company Name\"\n}"
+            },
+            "description": "Registers a new user (company)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"company@example.com\",\n  \"password\": \"SecurePassword123\"\n}"
+            },
+            "description": "Authenticates a user and returns a Firebase ID token."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Company",
+      "item": [
+        {
+          "name": "Create Company Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/company/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["company", "create"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Company Name\",\n  \"logo\": \"https://example.com/logo.png\",\n  \"coverImage\": \"https://example.com/cover.jpg\",\n  \"description\": \"Company description.\",\n  \"services\": [\"Service1\", \"Service2\"],\n  \"location\": \"Company Location\",\n  \"industry\": \"Industry\",\n  \"contact\": \"contact@example.com\",\n  \"yearFounded\": 2020,\n  \"socialLinks\": [\n    \"https://twitter.com/company\",\n    \"https://linkedin.com/company/company\"\n  ],\n  \"industries\": [\"Industry1\", \"Industry2\"]\n}"
+            },
+            "description": "Creates a new company profile."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Company Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/company/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["company", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{companyId}}"
+                }
+              ]
+            },
+            "description": "Retrieves detailed information about a company."
+          },
+          "response": []
+        },
+        {
+          "name": "List All Companies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/company/",
+              "host": ["{{baseUrl}}"],
+              "path": ["company", ""]
+            },
+            "description": "Lists all companies."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Employee",
+      "item": [
+        {
+          "name": "Add Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/employee/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["employee", "create"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyId\": \"{{companyId}}\",\n  \"name\": \"Employee Name\",\n  \"position\": \"Job Title\",\n  \"seniority\": \"Senior\",\n  \"skills\": [\"Skill1\", \"Skill2\"],\n  \"availability\": \"Available\",\n  \"yearsOfExperience\": 5,\n  \"shortDescription\": \"Brief description.\",\n  \"availabilityUntil\": \"2024-12-31\",\n  \"contact\": \"employee@example.com\"\n}"
+            },
+            "description": "Adds a new employee to the company."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Employee Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/employee/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["employee", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{employeeId}}"
+                }
+              ]
+            },
+            "description": "Retrieves detailed information about an employee."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Employee CV",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/employee/:id/uploadCV",
+              "host": ["{{baseUrl}}"],
+              "path": ["employee", ":id", "uploadCV"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{employeeId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cv",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "description": "Uploads a CV for an employee."
+          },
+          "response": []
+        },
+        {
+          "name": "Download Employee CV",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/employee/:id/downloadCV",
+              "host": ["{{baseUrl}}"],
+              "path": ["employee", ":id", "downloadCV"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{employeeId}}"
+                }
+              ]
+            },
+            "description": "Downloads an employee's CV."
+          },
+          "response": []
+        },
+        {
+          "name": "List Employees for a Company",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/employee?companyId={{companyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["employee"],
+              "query": [
+                {
+                  "key": "companyId",
+                  "value": "{{companyId}}"
+                }
+              ]
+            },
+            "description": "Lists all employees associated with a specific company."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Position",
+      "item": [
+        {
+          "name": "Create Position",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/positions/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["positions", "create"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyId\": \"{{companyId}}\",\n  \"jobTitle\": \"Job Title\",\n  \"requiredSkills\": [\"Skill1\", \"Skill2\"],\n  \"status\": \"Open\",\n  \"description\": \"Job description.\"\n}"
+            },
+            "description": "Creates a new job position for the company."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Position Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/positions/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["positions", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{positionId}}"
+                }
+              ]
+            },
+            "description": "Retrieves detailed information about a job position."
+          },
+          "response": []
+        },
+        {
+          "name": "List Positions for a Company",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{firebaseIdToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/positions?companyId={{companyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["positions"],
+              "query": [
+                {
+                  "key": "companyId",
+                  "value": "{{companyId}}"
+                }
+              ]
+            },
+            "description": "Lists all positions associated with a specific company."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "firebaseIdToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "companyId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "employeeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "positionId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
