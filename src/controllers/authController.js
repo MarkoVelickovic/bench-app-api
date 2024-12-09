@@ -50,7 +50,7 @@ class AuthController {
    */
   static async login(req, res) {
     const { email, password } = req.body;
-    const firebaseApiKey = process.env.FIREBASE_API_KEY; // Ensure this is set in your .env file
+    const firebaseApiKey = "AIzaSyADzl8UGcsf49RFJFPwr5eTX872EdRw50w"; // Ensure this is set in your .env file
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required.' });
