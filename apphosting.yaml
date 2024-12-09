@@ -1,3 +1,10 @@
+runConfig:
+  minInstances: 2
+  maxInstances: 100
+  concurrency: 100
+  cpu: 2
+  memoryMiB: 1024
+
 env:
   - variable: FIREBASE_CONFIG_PATH : 
     value: bench-app-dd51e-firebase-adminsdk-6ek2i-1ac5b17c93.json
