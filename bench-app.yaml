@@ -1,0 +1,6 @@
+env:
+  - variable: FIREBASE_CONFIG_PATH : 
+    value: bench-app-dd51e-firebase-adminsdk-6ek2i-1ac5b17c93.json
+  
+  - variable: FIREBASE_API_KEY
+    value: AIzaSyADzl8UGcsf49RFJFPwr5eTX872EdRw50w
