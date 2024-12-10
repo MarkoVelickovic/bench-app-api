@@ -1,4 +1,4 @@
-const { check, validationResult } = require('express-validator');
+const { check, validationResult, header } = require('express-validator');
 
 /**
  * Validation rules for user signup.
@@ -50,7 +50,28 @@ const validateLogin = [
   },
 ];
 
+/**
+ * Validation rules App access.
+ */
+
+const validateApp = [
+  header("app")
+  .notEmpty()
+  .withMessage("App access token is required!")
+  .isIn([process.env.APP_ACCESS_TOKEN])
+  .withMessage("App access token not valid!"),
+   // Middleware to handle validation results
+   (req, res, next) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+      return res.status(400).json({errors: errors.array()});
+    }
+    next();
+   }
+]
+
 module.exports = {
   validateSignup,
   validateLogin,
+  validateApp
 };

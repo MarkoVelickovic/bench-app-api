@@ -54,6 +54,7 @@ class EmployeeController {
     const { id: employeeId } = req.params;
 
     try {
+      console.log("started upload")
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded.' });
       }
@@ -61,6 +62,8 @@ class EmployeeController {
       const file = req.file;
       const uniqueFilename = `cv/${employeeId}_${Date.now()}_${file.originalname}`;
       const fileUpload = bucket.file(uniqueFilename);
+
+      console.log(uniqueFilename)
 
       // Create a write stream for uploading the file
       const blobStream = fileUpload.createWriteStream({
@@ -80,6 +83,7 @@ class EmployeeController {
       blobStream.on('finish', async () => {
         // Construct the public URL
         const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
+        console.log("Storing...")
 
         // Update the employee's CV URL in Firestore
         await EmployeeModel.updateEmployee(employeeId, { cvUrl: publicUrl });
@@ -90,6 +94,8 @@ class EmployeeController {
         });
       });
 
+      console.log(uniqueFilename)
+      
       // Pipe the file to Firebase Storage
       blobStream.end(file.buffer);
     } catch (error) {

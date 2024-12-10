@@ -12,11 +12,14 @@ const employeeRoutes = require('./routes/employeeRoutes');
 const positionRoutes = require('./routes/positionRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const errorHandler = require('./middlewares/errorHandler');
+const { validateApp } = require('./validators/authValidator');
 
 // Basic API endpoint for testing
 app.get('/', (req, res) => {
   res.send('Hello, bench-app!');
 });
+
+//app.use(validateApp)
 
 // Apply routes to the app
 app.use('/auth', authRoutes);
