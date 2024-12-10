@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
   res.send('Hello, bench-app!');
 });
 
-//app.use(validateApp)
+app.use(validateApp)
 
 // Apply routes to the app
 app.use('/auth', authRoutes);
