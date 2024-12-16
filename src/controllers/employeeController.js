@@ -2,6 +2,7 @@ const EmployeeModel = require('../models/employeeModel');
 const admin = require('../config/firebaseConfig.js');
 const bucket = admin.storage().bucket();
 const { v4: uuidv4 } = require('uuid');
+const SessionModel = require('../models/sessionModel.js');
 
 /**
  * Controller for employee-related operations.
@@ -16,6 +17,11 @@ class EmployeeController {
     const employeeData = req.body;
 
     try {
+
+      if(!(await SessionModel.authorizeCompanyAccess(employeeData.companyId, req.headers.authorization))) {
+        return res.status(403).json({error: "Access not authorized."});
+      }
+
       // Add authentication and company ownership verification here
       const employeeId = await EmployeeModel.createEmployee(employeeData);
       res.status(201).json({
@@ -54,7 +60,12 @@ class EmployeeController {
     const { id: employeeId } = req.params;
 
     try {
-      console.log("started upload")
+      const companyId = await EmployeeModel.getEmployeeById(employeeId)
+
+      if(!SessionModel.authorizeCompanyAccess(companyId, req.headers.authorization)) {
+        return res.status(403).json({error: "Access not authorized."});
+      }
+
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded.' });
       }
@@ -62,8 +73,6 @@ class EmployeeController {
       const file = req.file;
       const uniqueFilename = `cv/${employeeId}_${Date.now()}_${file.originalname}`;
       const fileUpload = bucket.file(uniqueFilename);
-
-      console.log(uniqueFilename)
 
       // Create a write stream for uploading the file
       const blobStream = fileUpload.createWriteStream({
@@ -82,8 +91,7 @@ class EmployeeController {
 
       blobStream.on('finish', async () => {
         // Construct the public URL
-        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
-        console.log("Storing...")
+        const publicUrl = `${fileUpload.name}`;
 
         // Update the employee's CV URL in Firestore
         await EmployeeModel.updateEmployee(employeeId, { cvUrl: publicUrl });
@@ -93,8 +101,6 @@ class EmployeeController {
           cvUrl: publicUrl,
         });
       });
-
-      console.log(uniqueFilename)
       
       // Pipe the file to Firebase Storage
       blobStream.end(file.buffer);
@@ -124,6 +130,24 @@ class EmployeeController {
     } catch (error) {
       console.error('Error downloading CV:', error);
       res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getEmployeesByCompany(req, res) {
+    const {companyId} = req.query;
+    console.log(companyId)
+
+    if(!companyId) {
+      return res.status(400).json({error: "Missing company id."})
+    }
+
+    try {
+     const employeesList = await EmployeeModel.getEmployeesByCompanyId(companyId);
+
+     return res.status(200).json(employeesList);
+    }
+    catch(error) {
+      return res.status(500).json({error: `An error occured: ${error.message}`});
     }
   }
 }

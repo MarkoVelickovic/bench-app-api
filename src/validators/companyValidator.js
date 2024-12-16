@@ -64,6 +64,10 @@ const validateCompanyCreation = [
     .optional()
     .isArray()
     .withMessage('Industries must be an array.'),
+    check("userId")
+    .exists()
+    .notEmpty()
+    .withMessage("UserId is required."),
   check('industries.*')
     .optional()
     .isString()

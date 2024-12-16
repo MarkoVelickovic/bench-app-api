@@ -12,6 +12,8 @@ const upload = multer({ storage });
 // Route to add a new employee
 router.post('/create', authenticateUser, validateEmployeeCreation, EmployeeController.createEmployee);
 
+router.get('/getEmployeeByCompany', authenticateUser, EmployeeController.getEmployeesByCompany)
+
 // Route to retrieve detailed information about an employee
 router.get('/:id', authenticateUser, EmployeeController.getEmployeeById);
 

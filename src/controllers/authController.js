@@ -1,5 +1,11 @@
 const admin = require('../config/firebaseConfig.js');
 const axios = require('axios');
+const SessionModel = require('../models/sessionModel.js');
+const UserModel = require('../models/userModel.js');
+const db = admin.firestore();
+
+const companyCollection = db.collection('companies');
+const sessionsCollection = db.collection('sessions');
 
 /**
  * Controller for authentication operations.
@@ -30,10 +36,13 @@ class AuthController {
 
       // Generate a custom token for the new user
       const customToken = await admin.auth().createCustomToken(userRecord.uid);
-
+      const userRef = await UserModel.createUser({
+        email: email
+      });
       res.status(201).json({
         message: 'User registered successfully.',
         token: customToken,
+        userId: userRef.id
       });
     } catch (error) {
       console.error('Error registering user:', error);
@@ -69,13 +78,38 @@ class AuthController {
 
       const { idToken } = response.data;
 
+      const user = await UserModel.getUserByEmail(email);
+      let companyId = "";
+
+      if(user.companyId) {
+      companyId = await companyCollection.doc(user.companyId).id;
+      // if(!companyId) {
+      //   res.status(500).json({
+      //     error: "No Company connected to the user."
+      //   })
+      // }
+
+      await SessionModel.registerSession(companyId, "Bearer " + idToken);
+      }
+
       res.status(200).json({
         message: 'User logged in successfully.',
         token: idToken,
+        companyId: companyId ?? "",
+        userId: user.id
       });
     } catch (error) {
       console.error('Error logging in user:', error.response ? error.response.data : error.message);
       res.status(500).json({ error: error.response ? error.response.data.error.message : error.message });
+    }
+  }
+
+  static async getUser(email) {
+    try {
+
+    }
+    catch(error) {
+
     }
   }
 }

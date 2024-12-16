@@ -13,6 +13,7 @@ const positionRoutes = require('./routes/positionRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 const { validateApp } = require('./validators/authValidator');
+const EmployeeController = require('./controllers/employeeController');
 
 // Basic API endpoint for testing
 app.get('/', (req, res) => {

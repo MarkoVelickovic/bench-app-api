@@ -1,4 +1,7 @@
+const { UserMetadata } = require('firebase-admin/auth');
 const CompanyModel = require('../models/companyModel');
+const SessionModel = require('../models/sessionModel');
+const UserModel = require('../models/userModel');
 
 /**
  * Controller for company-related operations.
@@ -15,6 +18,8 @@ class CompanyController {
     try {
       // You may add validation and authentication checks here
       const companyId = await CompanyModel.createCompany(companyData);
+      await UserModel.addCompany(companyData.userId, companyId);
+      const newUser = await SessionModel.registerSession(companyId, req.headers.authorization)
       res.status(201).json({
         message: 'Company profile created successfully.',
         companyId,
