@@ -1,4 +1,5 @@
 const admin = require('../config/firebaseConfig.js');
+const SessionModel = require('./sessionModel.js');
 const db = admin.firestore();
 
 // Reference to the 'employees' collection
@@ -80,6 +81,21 @@ class EmployeeModel {
       return employees;
     } catch (error) {
       throw new Error(`Error retrieving employees: ${error.message}`);
+    }
+  }
+
+  static async deleteEmployee(employeeId) {
+    try {
+      const employeeRef = await employeesCollection.doc(employeeId);
+      
+      if(!employeeRef) {
+        throw new Error("Employee not found.")
+      }
+
+      const results = await employeeRef.delete({exists: true});
+    }
+    catch(error) {
+      throw new Error(`Error deleting employee: ${error.message}`)
     }
   }
 }

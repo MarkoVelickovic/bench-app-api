@@ -23,4 +23,6 @@ router.post('/:id/uploadCV', authenticateUser, upload.single('cv'), EmployeeCont
 // Route to download an employee's CV
 router.get('/:id/downloadCV', authenticateUser, EmployeeController.downloadCV);
 
+router.delete("/:id", authenticateUser, EmployeeController.deleteEmployee);
+
 module.exports = router;

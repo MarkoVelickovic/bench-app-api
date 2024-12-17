@@ -63,6 +63,15 @@ class CompanyModel {
     }
   }
 
+  static async updateCompany(comapnyId, companyData) {
+    try {
+      await companiesCollection.doc(comapnyId).update(companyData);
+    }
+    catch(error) {
+      throw new Error(`Error updating company: ${error.message}`)
+    }
+  }
+
   /**
    * Retrieve all companies.
    * @returns {Promise<Array>} - A list of all company profiles.

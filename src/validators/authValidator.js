@@ -70,8 +70,28 @@ const validateApp = [
    }
 ]
 
+const validateDeleteAccount = [
+  check("userId")
+  .exists()
+  .notEmpty(),
+  check("companyId")
+  .exists()
+  .notEmpty(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty) {
+      return res.status(400).json({
+        errprs: error.array()
+      });
+    }
+    next();
+  }
+]
+
+
 module.exports = {
   validateSignup,
   validateLogin,
-  validateApp
+  validateApp,
+  validateDeleteAccount
 };

@@ -34,6 +34,30 @@ class EmployeeController {
     }
   }
 
+  static async deleteEmployee(req, res) {
+    const employeeId = req.params.id;
+    
+    try {
+      const employee = await EmployeeModel.getEmployeeById(employeeId);
+
+      if(!(await SessionModel.authorizeCompanyAccess(employee.companyId, req.headers.authorization))) {
+        return res.status(403).json({
+          error: "Access not allowed."
+        });
+      }
+
+      await EmployeeModel.deleteEmployee(employeeId);
+      return res.status(200).json({
+        message: "Emplyee deleted successfully."
+      });
+    }
+    catch(error) {
+      return res.status(500).json({
+        error: `Error deleting employee: ${error.message}`
+      });
+    } 
+  }
+
   /**
    * Retrieve detailed information about an employee.
    * @param {Object} req - Express request object.

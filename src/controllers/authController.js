@@ -2,6 +2,8 @@ const admin = require('../config/firebaseConfig.js');
 const axios = require('axios');
 const SessionModel = require('../models/sessionModel.js');
 const UserModel = require('../models/userModel.js');
+const CompanyModel = require('../models/companyModel.js');
+const EmployeeModel = require('../models/employeeModel.js');
 const db = admin.firestore();
 
 const companyCollection = db.collection('companies');
@@ -110,6 +112,37 @@ class AuthController {
     }
     catch(error) {
 
+    }
+  }
+
+  static async deleteAccount(req, res) {
+    const { companyId, userId } = req.body;
+
+    try {
+      if(!(await SessionModel.authorizeCompanyAccess(companyId, req.headers.authorization))) {
+        return res.status(403).json({
+          error: "Access not allowed."
+        });
+      }
+
+      const company = await CompanyModel.getCompanyById(companyId);
+      const employees = await EmployeeModel.getEmployeesByCompanyId(companyId);
+
+      employees.forEach(async (employee) => {
+        await EmployeeModel.deleteEmployee(employee.id);
+      });
+
+      await CompanyModel.deleteCompany(company.id);
+      await UserModel.deleteUser(userId);
+
+      return res.status(200).json({
+        message: "Account deleted successfully."
+      });
+    }
+    catch(error) {
+      return res.status(500).json({
+        error: `Error deleting account: ${error.message}`
+      });
     }
   }
 }
