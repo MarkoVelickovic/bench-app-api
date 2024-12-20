@@ -27,6 +27,9 @@ const validateCompanyCreation = [
     .optional()
     .trim()
     .escape(),
+    check("teamSize")
+    .isString()
+    .notEmpty(),
   check('industry')
     .optional()
     .trim()

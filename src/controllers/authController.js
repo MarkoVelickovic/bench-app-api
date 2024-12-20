@@ -39,7 +39,8 @@ class AuthController {
       // Generate a custom token for the new user
       const customToken = await admin.auth().createCustomToken(userRecord.uid);
       const userRef = await UserModel.createUser({
-        email: email
+        email: email,
+        uuid: userRecord.uid
       });
       res.status(201).json({
         message: 'User registered successfully.',
@@ -102,7 +103,7 @@ class AuthController {
       });
     } catch (error) {
       console.error('Error logging in user:', error.response ? error.response.data : error.message);
-      res.status(500).json({ error: error.response ? error.response.data.error.message : error.message });
+      res.status(400).json({ error: error.response ? error.response.data.error.message : error.message });
     }
   }
 
@@ -119,12 +120,13 @@ class AuthController {
     const { companyId, userId } = req.body;
 
     try {
-      if(!(await SessionModel.authorizeCompanyAccess(companyId, req.headers.authorization))) {
+      if(companyId && !(await SessionModel.authorizeCompanyAccess(companyId, req.headers.authorization))) {
         return res.status(403).json({
           error: "Access not allowed."
         });
       }
 
+      if(companyId) {
       const company = await CompanyModel.getCompanyById(companyId);
       const employees = await EmployeeModel.getEmployeesByCompanyId(companyId);
 
@@ -133,7 +135,12 @@ class AuthController {
       });
 
       await CompanyModel.deleteCompany(company.id);
+    }
+
+      const firebaseUuid = (await UserModel.getUser(userId))?.uuid;
       await UserModel.deleteUser(userId);
+
+      await admin.auth().deleteUser(firebaseUuid);
 
       return res.status(200).json({
         message: "Account deleted successfully."

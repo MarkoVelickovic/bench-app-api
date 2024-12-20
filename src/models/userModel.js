@@ -5,9 +5,9 @@ const db = admin.firestore();
 const usersCollection = db.collection('users');
 
 class UserModel {
-    static async getUser(email) {
+    static async getUser(userId) {
         try {
-            const user = await usersCollection.where("email", "==", email).get().docs.at(0);
+            const user = (await usersCollection.doc(userId).get()).data();
             if(!user) {
                 throw new Error("User does not exist");
             }
