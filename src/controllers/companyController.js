@@ -1,6 +1,7 @@
 const CompanyModel = require('../models/companyModel');
 const SessionModel = require('../models/sessionModel');
 const UserModel = require('../models/userModel');
+const { CachedAuthenticationStrategyFirebase, CachedAuthenticationStrategyMemcached } = require('./cachedAithenticationStrategy.js');
 const admin = require("../config/firebaseConfig.js");
 const bucket = admin.storage().bucket();
 
@@ -8,6 +9,9 @@ const bucket = admin.storage().bucket();
  * Controller for company-related operations.
  */
 class CompanyController {
+
+  static authenticationCachingStrategy = new CachedAuthenticationStrategyFirebase();
+
   /**
    * Create a new company profile.
    * @param {Object} req - Express request object.
@@ -20,7 +24,7 @@ class CompanyController {
       // You may add validation and authentication checks here
       const companyId = await CompanyModel.createCompany(companyData);
       await UserModel.addCompany(companyData.userId, companyId);
-      const newUser = await SessionModel.registerSession(companyId, req.headers.authorization)
+      const newUser =  await CompanyController.authenticationCachingStrategy.setCachedUathenticationToken(req.headers.authorization, companyId);
       res.status(201).json({
         message: 'Company profile created successfully.',
         companyId,
@@ -68,7 +72,7 @@ class CompanyController {
     const companyData = req.body;
 
     try {
-      if(!(await SessionModel.authorizeCompanyAccess(companyId, req.headers.authorization))) {
+      if(!(await CompanyController.authenticationCachingStrategy.authetnticateCachedToken(req.headers.authorization, companyId))) {
         return res.status(403).json({error: "Access not allowed."});
       }
     
@@ -84,7 +88,7 @@ class CompanyController {
     const companyId = req.params.id;
 
     try {
-      if(!(await SessionModel.authorizeCompanyAccess(companyId, req.headers.authorization))) {
+      if(!(await CompanyController.authenticationCachingStrategy.authetnticateCachedToken(req.headers.authorization, companyId))) {
         return res.status(403).json( { error: "Accecss not aurhorized." } )
       }
 

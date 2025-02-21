@@ -58,11 +58,6 @@ const validateCompanyCreation = [
     .optional()
     .isArray()
     .withMessage('Social links must be an array of URLs.'),
-  check('socialLinks.*')
-    .optional()
-    .isURL()
-    .withMessage('Each social link must be a valid URL.')
-    .trim(),
   check('industries')
     .optional()
     .isArray()

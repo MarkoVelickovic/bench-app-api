@@ -1,4 +1,5 @@
 const EmployeeModel = require('../models/employeeModel');
+const { CachedAuthenticationStrategyFirebase, CachedAuthenticationStrategyMemcached } = require('./cachedAithenticationStrategy.js');
 const admin = require('../config/firebaseConfig.js');
 const bucket = admin.storage().bucket();
 const { v4: uuidv4 } = require('uuid');
@@ -8,6 +9,9 @@ const SessionModel = require('../models/sessionModel.js');
  * Controller for employee-related operations.
  */
 class EmployeeController {
+
+  static authenticationCachingStrategy = new CachedAuthenticationStrategyFirebase();
+
   /**
    * Add a new employee to the company profile.
    * @param {Object} req - Express request object.
@@ -18,7 +22,7 @@ class EmployeeController {
 
     try {
 
-      if(!(await SessionModel.authorizeCompanyAccess(employeeData.companyId, req.headers.authorization))) {
+      if(!(await EmployeeController.authenticationCachingStrategy.authetnticateCachedToken(req.headers.authorization, employeeData.companyId))) {
         return res.status(403).json({error: "Access not authorized."});
       }
 
@@ -40,7 +44,7 @@ class EmployeeController {
     try {
       const employee = await EmployeeModel.getEmployeeById(employeeId);
 
-      if(!(await SessionModel.authorizeCompanyAccess(employee.companyId, req.headers.authorization))) {
+      if(!(await EmployeeController.authenticationCachingStrategy.authetnticateCachedToken(req.headers.authorization, employeeData.companyId))) {
         return res.status(403).json({
           error: "Access not allowed."
         });
@@ -86,7 +90,7 @@ class EmployeeController {
     try {
       const companyId = await EmployeeModel.getEmployeeById(employeeId)
 
-      if(!SessionModel.authorizeCompanyAccess(companyId, req.headers.authorization)) {
+      if(! await EmployeeController.authenticationCachingStrategy.authetnticateCachedToken(req.headers.authorization, companyId)) {
         return res.status(403).json({error: "Access not authorized."});
       }
 

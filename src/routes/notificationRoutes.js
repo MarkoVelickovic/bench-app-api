@@ -11,3 +11,4 @@ router.post('/send', authenticateUser, validateNotification, NotificationControl
 router.get('/', authenticateUser, NotificationController.getUserNotifications);
 
 module.exports = router;
+

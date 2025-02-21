@@ -4,15 +4,22 @@ const SessionModel = require('../models/sessionModel.js');
 const UserModel = require('../models/userModel.js');
 const CompanyModel = require('../models/companyModel.js');
 const EmployeeModel = require('../models/employeeModel.js');
+const { CachedAuthenticationStrategyFirebase, CachedAuthenticationStrategyMemcached } = require('./cachedAithenticationStrategy.js');
 const db = admin.firestore();
+const jwt = require("jsonwebtoken");
 
 const companyCollection = db.collection('companies');
 const sessionsCollection = db.collection('sessions');
+
 
 /**
  * Controller for authentication operations.
  */
 class AuthController {
+
+  static authenticationCachingStrategy = new CachedAuthenticationStrategyFirebase();
+  static JWT_S_PART = "69b1c549fadaad949604bdf1fc515568e18169c2b55bb1c0fb2a58a13672d02adeaf8fb175bb2cbb9f17ec650e5c4178ddb256d20523af4219d820170163360db98a"
+
   /**
    * Register a new user (Company or Client).
    * @param {Object} req - Express request object.
@@ -80,6 +87,7 @@ class AuthController {
       );
 
       const { idToken } = response.data;
+      const jwtToken = jwt.sign(email, AuthController.JWT_S_PART + idToken);
 
       const user = await UserModel.getUserByEmail(email);
       let companyId = "";
@@ -92,12 +100,18 @@ class AuthController {
       //   })
       // }
 
-      await SessionModel.registerSession(companyId, "Bearer " + idToken);
+      console.log(companyId)
+
+      if(companyId != undefined) {
+        console.log(companyId)
+      await AuthController.authenticationCachingStrategy.setCachedUathenticationToken("Bearer " + idToken, companyId);
       }
+    }
 
       res.status(200).json({
         message: 'User logged in successfully.',
         token: idToken,
+        backupToken: jwtToken,
         companyId: companyId ?? "",
         userId: user.id
       });
@@ -120,7 +134,7 @@ class AuthController {
     const { companyId, userId } = req.body;
 
     try {
-      if(companyId && !(await SessionModel.authorizeCompanyAccess(companyId, req.headers.authorization))) {
+      if(companyId && !(await AuthController.authenticationCachingStrategy.authetnticateCachedToken(req.headers.authorization, companyId))) {
         return res.status(403).json({
           error: "Access not allowed."
         });
